@@ -1,0 +1,16 @@
+
+
+1. Missing comments
+2. Modularity
+3. Bad variable usage
+4. The mathematical terminologies are not good. 
+When editing code they cannot be typed on the keyboard.
+These need to be coming from a python package
+
+5. Need config file with all the options
+
+6. No test cases
+7. No guardrails or checks involved.
+
+8. Need docker.venv for packages
+
