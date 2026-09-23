@@ -1,16 +1,59 @@
 
+Main questions:
+1. Could the code be made more efficient?
+Yes!
 
+2. Is the code best structured for later use by other developers?
+No!
+
+3. How would you approach productionising this application?
+- First improve the code structure so that it
+can be easily interpreted and be made modular
+- Add error handling and logging
+- Improve efficiency
+
+Initial thoughts as soon as I looked at the code.
 1. Missing comments
 2. Modularity
 3. Bad variable usage
 4. The mathematical terminologies are not good. 
 When editing code they cannot be typed on the keyboard.
-These need to be coming from a python package
+These need to be coming from a python package? math?
 
-5. Need config file with all the options
-
+5. Need config file with all the constants in it
 6. No test cases
 7. No guardrails or checks involved.
-
 8. Need docker.venv for packages
 
+------
+Implemented the following in the same order:
+1. Good formatting in terms of a repo structure
+   Adding Readme
+2. Requirements.txt - virtual environment - gitignore
+3. Performance analysis - benchmarking
+   100 iterations - 0.47s
+   1000 iterations - 5m 54s
+
+4. Better variables and better notations for mathematical equations
+5. Constants added to a config
+6. Addition of modularity to use the 
+    training method as a function call
+
+7. Added comments to make the code more readable
+8. Addition of logs to print the training progress
+   Also very useful to debug and track errors
+9. Error handling for any failures
+
+Long term production code - More additions:
+1. Addition of unit tests
+
+----
+Now focussing on improving efficiency of training iterations:
+1. Some nested loop structure could be avoided
+2. Multi threading for node level calculations?
+3. Can I use matrix multiplication to optimise?
+
+---
+Performed one change- removal of loops
+Instead of updating nodes one at a time, 
+I now update it through a vector operation 
