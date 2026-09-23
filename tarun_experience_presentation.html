@@ -297,22 +297,36 @@ const DIAGRAMS = {
       <text x="320" y="196" text-anchor="middle" class="diagram-sub-label">shared agent contract, deterministic scoring, LLM only reasons</text>
     </svg>`,
   "mindful-ai": `
-    <svg viewBox="0 0 640 170" width="640">
-      <circle cx="40" cy="85" r="18" fill="var(--surface-sunken)" stroke="var(--line)" stroke-width="1.4"/>
-      <text x="40" y="90" text-anchor="middle" class="diagram-sub-label">msg</text>
-      <path d="M60,85 L200,85" stroke="var(--line)" stroke-width="2" fill="none"/>
-      <rect x="200" y="55" width="90" height="60" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6" transform="rotate(0 245 85)"/>
-      <text x="245" y="80" text-anchor="middle" class="diagram-node-label">Guardrail</text>
-      <text x="245" y="96" text-anchor="middle" class="diagram-sub-label">crisis check</text>
-      <path d="M290,70 C 360,40 420,40 480,55" stroke="var(--per)" stroke-width="2" fill="none"/>
-      <path d="M290,100 C 360,140 420,140 480,120" stroke="var(--accent)" stroke-width="2" fill="none"/>
-      <circle cx="500" cy="50" r="22" fill="var(--per-soft)" stroke="var(--per)" stroke-width="1.6"/>
-      <text x="500" y="55" text-anchor="middle" class="diagram-node-label">LLM</text>
-      <circle cx="500" cy="125" r="22" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/>
-      <text x="500" y="122" text-anchor="middle" class="diagram-node-label">Safe</text>
-      <text x="500" y="134" text-anchor="middle" class="diagram-sub-label">response</text>
-      <circle r="4.5" fill="var(--per)"><animateMotion dur="5.6s" repeatCount="indefinite" path="M60,85 L200,85 M290,70 C 360,40 420,40 480,55" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></circle>
-      <circle r="4.5" fill="var(--accent)"><animateMotion dur="6.8s" begin="1.6s" repeatCount="indefinite" path="M60,85 L200,85 M290,100 C 360,140 420,140 480,120" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></circle>
+    <svg viewBox="0 0 700 226" width="700">
+      <!-- incoming message -->
+      <circle cx="48" cy="95" r="20" fill="var(--surface-sunken)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="48" y="99" text-anchor="middle" class="diagram-sub-label">msg</text>
+      <path d="M68,95 H140" stroke="var(--line)" stroke-width="2" fill="none"/>
+
+      <!-- the one gate -->
+      <rect x="140" y="70" width="100" height="50" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/>
+      <text x="190" y="90" text-anchor="middle" class="diagram-node-label">Crisis check</text>
+      <text x="190" y="105" text-anchor="middle" class="diagram-sub-label">every message</text>
+
+      <!-- crisis: escalate -->
+      <path d="M240,85 C 300,55 350,45 401,45" stroke="var(--accent)" stroke-width="2" fill="none"/>
+      <circle cx="425" cy="45" r="24" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/>
+      <text x="459" y="42" class="diagram-node-label">Escalate</text>
+      <text x="459" y="56" class="diagram-sub-label">official authorities</text>
+
+      <!-- no crisis: the agent replies -->
+      <path d="M240,105 C 300,135 350,155 401,155" stroke="var(--per)" stroke-width="2" fill="none"/>
+      <circle cx="425" cy="155" r="24" fill="var(--per-soft)" stroke="var(--per)" stroke-width="1.6"/>
+      <text x="459" y="152" class="diagram-node-label">LLM agent</text>
+      <text x="459" y="166" class="diagram-sub-label">responds</text>
+
+      <!-- running behind both paths -->
+      <path d="M190,120 V196" stroke="var(--line)" stroke-width="1.4" stroke-dasharray="3 3" fill="none"/>
+      <rect x="140" y="184" width="420" height="26" rx="13" fill="none" stroke="var(--line)" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <text x="350" y="201" text-anchor="middle" class="diagram-sub-label">notes kept either way, so a case is ready for professional help</text>
+
+      <circle r="4.5" fill="var(--accent)"><animateMotion dur="6.8s" repeatCount="indefinite" path="M68,95 H140 M240,85 C 300,55 350,45 401,45" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></circle>
+      <circle r="4.5" fill="var(--per)"><animateMotion dur="5.6s" begin="1.6s" repeatCount="indefinite" path="M68,95 H140 M240,105 C 300,135 350,155 401,155" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></circle>
     </svg>`
 };
 
@@ -546,23 +560,27 @@ const PROJECTS = [
   {
     id: "mindful-ai", group: "per", icon: "shield",
     name: "Mindful AI",
-    hook: "A mental-health chat prototype, designed safety-first.",
-    metric: "Safety-first", metricLabel: "guardrail runs before every AI response",
+    hook: "Lowering the barrier to asking for help.",
+    metric: "Just a message", metricLabel: "no appointment, no cost, no commitment",
     stats: [],
-    keyDecision: "The guardrail was built before the chat feature it protects, not added afterwards.",
+    keyDecision: "Free for the person seeking help. The therapist side is where it would make money.",
     tech: ["Python", "Gemini", "Auth", "Rule-based guardrails"],
     problem: [
-      "A mental-health chat has to handle high-risk messages correctly every time.",
-      "That has to happen before an LLM ever sees the message."
+      "Most people who need mental health support never take the first step.",
+      "Cost: therapy is expensive and often not fully covered.",
+      "Friction: booking, finding the right therapist, committing to a formal process.",
+      "Stigma: starting a formal mental health journey is a big step to take."
     ],
     approach: [
-      "Full-stack chat app: authentication, session handling, a Gemini-backed conversation engine.",
-      "A rule-based crisis-detection layer runs on every incoming message first.",
-      "On a match, the AI is bypassed and a fixed response returns Lifeline, Beyond Blue and emergency numbers."
+      "Remove the first barrier: open a chat, talk, feel heard. No appointment, no cost.",
+      "Designed as two sides: people seeking support, and therapists who take warm-transferred cases.",
+      "Built the user side: authentication, session handling, a Gemini-backed chat.",
+      "A rule-based crisis check runs on every message before the LLM sees it.",
+      "If someone is ready, connect them to a professional, with the case already prepared."
     ],
     role: "Sole builder, architecture and direction.",
     deepDive: {
-      intro: "Every message hits the guardrail first. The AI only sees a message once it has cleared that check.",
+      intro: "The first message has to cost nothing. Behind it, every message still goes through the crisis check first.",
       left: {
         h: "Why rule-based for this one gate",
         items: [
@@ -572,11 +590,12 @@ const PROJECTS = [
         ]
       },
       right: {
-        h: "What happens on a match",
+        h: "The two paths, and the work behind both",
         items: [
-          "The AI is bypassed entirely for that message.",
-          "A fixed response returns Lifeline, Beyond Blue and emergency numbers.",
-          "The decision was made before any chat feature was built."
+          "Crisis detected: escalate, and involve the official authorities.",
+          "No crisis: a simple LLM agent handles the reply.",
+          "Either way, the admin and book-keeping run in the background.",
+          "That means a case is already prepared if the user moves to professional help."
         ]
       }
     }
