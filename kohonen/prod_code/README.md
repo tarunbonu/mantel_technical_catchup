@@ -3,8 +3,9 @@
 Production-style implementation of a Kohonen Self-Organising Map. This directory is
 intended to reflect how the algorithm would be written, structured and maintained in a
 real codebase rather than as a notebook experiment: clear module boundaries, configuration
-kept out of the code, reproducible runs, and code that a new team member can read and
-extend without reverse-engineering it.
+kept out of the code, a pinned environment, and code that a new team member can read and
+extend without reverse-engineering it. What is still missing is listed at the end, rather
+than left implied.
 
 ## Contents
 
@@ -91,17 +92,36 @@ project needs.
 python kohonen_som.py
 ```
 
-This trains the maps defined in `config.yaml` and writes each result as a PNG.
+This trains two example maps (10x10 over 100 iterations, and 100x100 over 1000
+iterations) and writes each result as a PNG into the configured output directory.
+
+Algorithm constants, the output location and logging behaviour come from `config.yaml`.
+Grid size and iteration count are still passed as arguments at the call site in
+`__main__`; moving those into the config as named run profiles is a sensible next step.
 
 ## Design principles for this directory
 
-- **Configuration lives in `config.yaml`, not in code.** Changing grid size or iteration
-  count should never require editing Python.
-- **Reproducibility.** Runs are seeded so that the same configuration produces the same
-  map.
+- **Configuration lives in `config.yaml`, not in code.** Changing the learning rate or the
+  input dimensionality should never require editing Python.
 - **Vectorised numerics.** Node updates are computed with NumPy array operations rather
-  than per-node Python loops, so large grids remain tractable.
-- **Small, single-purpose functions** with type hints and docstrings, so each step
-  (BMU lookup, neighbourhood, weight update) can be tested and reasoned about on its own.
-- **Tests accompany logic.** Behaviour is checked with unit tests rather than by eyeballing
-  output images.
+  than per-node Python loops, so large grids remain tractable. On a 100x100 grid over 1000
+  iterations this is the difference between 5m 54s and roughly 4.8s.
+- **Small, single-purpose functions** with docstrings, so each step (BMU lookup,
+  neighbourhood, weight update) can be tested and reasoned about on its own.
+- **Validate at the boundaries.** Arguments are checked before training starts and the
+  trained grid is checked before it is returned or saved, so bad input fails with a clear
+  message instead of surfacing later as a NumPy shape error or a plausible but wrong map.
+
+## Not done yet
+
+Called out explicitly rather than left for a reader to discover:
+
+- **No unit tests.** The properties worth asserting are known (influence is 1.0 at the BMU
+  and falls with distance; decay is monotonic; the returned grid has the expected shape),
+  but the suite is not written. This is the next piece of work.
+- **Runs are not seeded.** Weight initialisation and input generation both call
+  `np.random` without a seed, so no two runs produce an identical map. A seed belongs in
+  `config.yaml`, and is a prerequisite for meaningful tests.
+- **No type hints.** Shapes and types are documented in the docstrings but not enforced.
+- **No container.** Dependencies are pinned, which is what makes adding a Dockerfile a
+  small step rather than a project.

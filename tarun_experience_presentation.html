@@ -274,7 +274,7 @@ const PROJECTS = [
   {
     id: "range-optimiser", group: "pro", icon: "grid",
     name: "Range Optimiser",
-    hook: "The model behind Coles' national store-specific ranging program.",
+    hook: "Store-specific product ranging for Coles, run nationally.",
     metric: "$159.5M", metricLabel: "estimated annualised sales benefit",
     stats: [
       { label: "Sales uplift", value: 1.5, suffix: "%" },
@@ -282,32 +282,37 @@ const PROJECTS = [
       { label: "Waste/markdown reduction", value: 3.5, suffix: "%" },
       { label: "Loss reduction", value: 0.7, suffix: "%" }
     ],
-    keyDecision: "Chained optimisation, not one model, each stage narrows the problem before the next, so the whole system stays tractable at national scale.",
+    keyDecision: "Chained optimisation, not one big model. Each stage narrows the problem for the next.",
     tech: ["Python", "Optimisation modelling", "Databricks", "Azure", "Snowflake", "Internal MLOps platform"],
-    problem: "Coles needed store-specific product ranging decisions at national scale, balancing sales, margin, waste, and loss across every store, not a one-size-fits-all range.",
-    approach: [
-      "A pipeline of chained optimisation problems, producing store-specific recommendations across Coles' national network.",
-      "Contribute to the core model and maintain ~11-12 production models on Coles' internal MLOps platform, model registry, monitoring dashboard.",
-      "Mentoring 3 team members, progressively taking on team-lead-level scope.",
-      "Prototyped a multi-agent workflow (planner, developer, tester, validator, orchestrator) to explore automating parts of the enhancement lifecycle."
+    problem: [
+      "Every store differs in size, space and local demand.",
+      "One national range does not suit all of them.",
+      "Decisions have to balance sales, margin, waste and loss."
     ],
-    role: "Core contributor and mentor, current role.",
+    approach: [
+      "A pipeline of chained optimisation stages, run across the national network.",
+      "I contribute to the core optimisation model.",
+      "I maintain 11 to 12 production models on our internal MLOps platform.",
+      "I mentor 3 team members.",
+      "I prototyped a multi-agent workflow to automate parts of the enhancement cycle."
+    ],
+    role: "Core contributor and mentor. Current role.",
     deepDive: {
-      intro: "Each store's range isn't solved in one shot. Data flows through a sequence of narrower optimisation stages, each one constraining the search space for the next, which is what keeps this tractable across the whole store network rather than blowing up computationally.",
+      intro: "Data moves through a sequence of optimisation stages. Each stage narrows the search space for the one after it.",
       left: {
-        h: "Why chained, not monolithic",
+        h: "Why chained, not one model",
         items: [
-          "A single end-to-end optimisation across every store, every product, every constraint simultaneously doesn't scale.",
-          "Splitting into stages means each one can be tuned, tested, and monitored independently.",
-          "Failure in one stage is visible and debuggable, not buried inside one opaque model."
+          "One optimisation across all stores and products does not scale.",
+          "Separate stages can be tuned and tested on their own.",
+          "A failure shows up in one stage instead of being buried."
         ]
       },
       right: {
-        h: "What I actually own",
+        h: "What I own",
         items: [
-          "The core optimisation logic within the pipeline.",
-          "~11-12 production models on the internal MLOps platform, registry and monitoring included.",
-          "The enhancement roadmap, together with the 3 people I mentor on it."
+          "The core optimisation logic in the pipeline.",
+          "11 to 12 production models, registry and monitoring included.",
+          "The enhancement roadmap, with the 3 people I mentor."
         ]
       }
     }
@@ -315,38 +320,43 @@ const PROJECTS = [
   {
     id: "store-specific-ends", group: "pro", icon: "shelf",
     name: "Store-Specific-Ends",
-    hook: "Built from scratch: promotional end-of-aisle placement, optimised per store.",
+    hook: "Promotional end-of-aisle placement, chosen per store.",
     metric: "$14M", metricLabel: "projected annualised EBIT uplift",
     stats: [
       { label: "EBIT uplift", value: 14, prefix: "$", suffix: "M" },
       { label: "Labour cost reduction", value: 1.5, prefix: "$", suffix: "M" },
       { label: "Stores in trial", value: 130, suffix: "" }
     ],
-    keyDecision: "Validated before scaling, the 130-store trial existed specifically to prove the model before it went network-wide.",
+    keyDecision: "Trialled on 130 stores before any wider rollout.",
     tech: ["R", "Constrained optimisation", "From-scratch pipeline"],
-    problem: "Every Coles store has a fixed number of promotional end-of-aisle slots. Deciding which discounted items go where, per store, is a large-scale constrained optimisation problem.",
-    approach: [
-      "Built two optimisation models in R, initiation through to finalisation, a brand-new product.",
-      "Worked in a tight team of three on the build.",
-      "Validated via a 130-store trial before wider rollout."
+    problem: [
+      "Each store has a fixed number of promotional ends.",
+      "The number varies by store size.",
+      "Choosing which discounted items go where is a constrained assignment problem."
     ],
-    role: "Built the core optimisation models personally.",
+    approach: [
+      "Built two optimisation models in R, start to finish.",
+      "A new product, built from scratch.",
+      "Team of three.",
+      "Validated with a 130-store trial before wider rollout."
+    ],
+    role: "Built the core optimisation models.",
     deepDive: {
-      intro: "The number of ends per store is fixed, and varies by store size, so this isn't a ranking problem, it's a constrained assignment problem: which items, on which ends, in which stores, without violating category or supplier rules.",
+      intro: "Slots per store are fixed, so this is an assignment problem rather than a ranking one.",
       left: {
-        h: "The constraint that made it hard",
+        h: "What made it hard",
         items: [
-          "Fixed slot count per store, varying store to store.",
-          "Promotional eligibility rules that change week to week.",
-          "Needed to run for the whole network on a practical timeline, not overnight for one store."
+          "Slot count is fixed, and differs store to store.",
+          "Promotional eligibility rules change week to week.",
+          "It has to run for the whole network on a practical schedule."
         ]
       },
       right: {
         h: "Why the trial mattered",
         items: [
-          "130 stores, a real subset of the network, not a simulation.",
-          "Gave a defensible, measured EBIT number before anyone committed to a full rollout.",
-          "The $14M figure is a trial result, projected to annualised, not a theoretical estimate."
+          "130 real stores, not a simulation.",
+          "Gave a measured number before committing to rollout.",
+          "The $14M is projected from trial results, not an estimate."
         ]
       }
     }
@@ -354,37 +364,42 @@ const PROJECTS = [
   {
     id: "bigdatr", group: "pro", icon: "spark",
     name: "Bigdatr Outlier Detection",
-    hook: "Cleaning marketing-spend signal across 130,000 brand and media-type variations.",
+    hook: "Cleaning marketing-spend data across 130,000 series.",
     metric: "60%", metricLabel: "reduction in outlier verification time",
     stats: [
       { label: "Verification time cut", value: 60, suffix: "%" },
       { label: "Variations covered", value: 130000, suffix: "" },
       { label: "Model versions shipped", value: 2, suffix: "" }
     ],
-    keyDecision: "Confidence-gated automation, auto-handle the clear cases, route the uncertain ones to a human, rather than trying to automate everything.",
+    keyDecision: "Automate the clear cases. Send the uncertain ones to a person.",
     tech: ["Python", "Time-series pipelines", "AWS SageMaker"],
-    problem: "Marketing-spend estimates, built from multiple external data sources, contained outliers that corrupted downstream forecasting if left uncorrected.",
-    approach: [
-      "Built a parallelised outlier-detection and correction pipeline across ~130,000 brand × media-type variations.",
-      "Self-initiated a confidence-gated auto-tagging model for marketing creatives, routing only uncertain cases to a manual team."
+    problem: [
+      "Spend estimates are built from several external sources.",
+      "Those sources contain outliers.",
+      "Left uncorrected, the outliers corrupt the forecasts downstream."
     ],
-    role: "Built both the pipeline and the self-initiated tagging model.",
+    approach: [
+      "Built a parallelised outlier detection and correction pipeline.",
+      "Ran it across about 130,000 brand and media-type combinations.",
+      "Also built a confidence-gated auto-tagging model for creatives, self-initiated."
+    ],
+    role: "Built the pipeline and the tagging model.",
     deepDive: {
-      intro: "Real marketing spend is smooth over time, so a sudden one- or two-point spike is almost always a data artefact, not real behaviour. Left alone, that artefact propagates straight into the forecast.",
+      intro: "Real marketing spend moves smoothly over time. A sudden one-point spike is usually a data artefact, not real behaviour.",
       left: {
-        h: "The detection logic",
+        h: "How the detection works",
         items: [
           "Flag points that break the local trend, not just global outliers.",
-          "Patch the flagged point before it reaches the forecasting stage.",
-          "Parallelised across ~130,000 series so it runs on a practical schedule."
+          "Patch the flagged point before forecasting sees it.",
+          "Parallelised across 130,000 series so it runs on schedule."
         ]
       },
       right: {
-        h: "The pattern I reused later",
+        h: "The confidence gate",
         items: [
-          "Confidence-gated triage: auto-handle what the model is sure about.",
-          "Route only the genuinely uncertain cases to a person.",
-          "Same shape I later used for the creative auto-tagging model, and again in the CT-scan screening work at Monash."
+          "The model handles the cases it is confident about.",
+          "Uncertain cases go to the manual team.",
+          "The automation stays safe without having to be perfect."
         ]
       }
     }
@@ -392,38 +407,43 @@ const PROJECTS = [
   {
     id: "optimus", group: "per", icon: "nodes",
     name: "Optimus",
-    hook: "A multi-agent trading system, built to actually understand agentic architecture.",
+    hook: "A multi-agent trading system, built to understand agentic architecture properly.",
     metric: "2 agents", metricLabel: "one shared contract, one orchestrator",
     stats: [
       { label: "Specialised agents", value: 2, suffix: "" },
       { label: "Commits, iterative build", value: 65, suffix: "+" },
       { label: "Weeks to first version", value: 2, suffix: "" }
     ],
-    keyDecision: "Deterministic scoring, LLM for reasoning only, no hallucination anywhere near an actual trading decision.",
+    keyDecision: "Scoring stays deterministic. The LLM reasons and explains, it never decides a trade.",
     tech: ["Python", "FastAPI / Next.js", "Multi-agent orchestration", "MCP"],
-    problem: "Wanted hands-on depth in agentic AI systems, not just reading about the patterns, something with real architectural decisions and trade-offs.",
-    approach: [
-      "A meta-orchestrator dispatches two specialised agents (equity selection, options strategy), both implementing a shared agent contract.",
-      "Scoring stays fully deterministic, in code. The LLM is used only for reasoning and narration.",
-      "Human-in-the-loop approval before anything executes, plus a backtesting engine replaying historical data through the pipeline."
+    problem: [
+      "I wanted hands-on depth in agentic systems, not just reading about the patterns.",
+      "That meant building something with real architectural decisions in it."
     ],
-    role: "Sole builder, architecture and direction. Used Claude Code to accelerate implementation.",
+    approach: [
+      "An orchestrator dispatches two specialised agents: equity selection and options strategy.",
+      "Both agents implement the same shared contract.",
+      "Scoring is deterministic, in code. The LLM only reasons and narrates.",
+      "A human approves before anything executes.",
+      "A backtesting engine replays historical data through the same pipeline."
+    ],
+    role: "Sole builder, architecture and direction. Used Claude Code to accelerate the implementation.",
     deepDive: {
-      intro: "The orchestrator doesn't know or care what's inside Arya or Valmiki, it just calls whichever agent the situation needs, through one shared contract, and gets a result back in a predictable shape.",
+      intro: "The orchestrator does not know what is inside either agent. It calls whichever one the situation needs, through one contract, and gets back a predictable shape.",
       left: {
-        h: "Why a shared contract matters",
+        h: "Why a shared contract",
         items: [
-          "The orchestrator can run either agent interchangeably, live or backtest.",
-          "New agents can be added later without touching orchestration logic.",
-          "Makes the system testable, each agent can be validated in isolation."
+          "Either agent can be run interchangeably, live or in backtest.",
+          "New agents can be added without touching the orchestrator.",
+          "Each agent can be tested on its own."
         ]
       },
       right: {
-        h: "Where I'm still deepening my own understanding",
+        h: "Where I am still deepening my understanding",
         items: [
-          "Drove the architecture and the deterministic/LLM split myself.",
-          "Used Claude Code to accelerate implementation of the internals.",
-          "Going back through orchestrator.py and base_agent.py now, so I own it, not just describe it."
+          "The architecture and the deterministic/LLM split were my calls.",
+          "I used Claude Code to accelerate the internals.",
+          "I am going back through orchestrator.py and base_agent.py so I own it, not just describe it."
         ]
       }
     }
@@ -431,33 +451,37 @@ const PROJECTS = [
   {
     id: "mindful-ai", group: "per", icon: "shield",
     name: "Mindful AI",
-    hook: "A mental-health chat prototype, designed safety-first from the ground up.",
+    hook: "A mental-health chat prototype, designed safety-first.",
     metric: "Safety-first", metricLabel: "guardrail runs before every AI response",
     stats: [],
-    keyDecision: "The guardrail layer was built before the chat feature it protects, not bolted on after.",
+    keyDecision: "The guardrail was built before the chat feature it protects, not added afterwards.",
     tech: ["Python", "Gemini", "Auth", "Rule-based guardrails"],
-    problem: "A mental-health support chat needs to handle high-risk messages correctly, every time, before an LLM ever sees them.",
+    problem: [
+      "A mental-health chat has to handle high-risk messages correctly every time.",
+      "That has to happen before an LLM ever sees the message."
+    ],
     approach: [
-      "Full-stack chat application: authentication, session handling, a Gemini-backed conversational engine.",
-      "A rule-based crisis-detection layer runs on every incoming message before it reaches the AI. High-risk patterns get a fixed, safe response with Lifeline, Beyond Blue, and emergency numbers instead."
+      "Full-stack chat app: authentication, session handling, a Gemini-backed conversation engine.",
+      "A rule-based crisis-detection layer runs on every incoming message first.",
+      "On a match, the AI is bypassed and a fixed response returns Lifeline, Beyond Blue and emergency numbers."
     ],
     role: "Sole builder, architecture and direction.",
     deepDive: {
-      intro: "Every message hits the guardrail first, always, no exceptions. The AI only ever sees a message after it's cleared that check, it never gets the chance to mishandle something high-risk.",
+      intro: "Every message hits the guardrail first. The AI only sees a message once it has cleared that check.",
       left: {
-        h: "Why rule-based, not model-based, for this one gate",
+        h: "Why rule-based for this one gate",
         items: [
-          "Deterministic and auditable, the same input always gives the same outcome.",
-          "No dependency on a model being available or behaving predictably under pressure.",
-          "A dedicated classifier is future work, this was the right POC-stage trade-off."
+          "Deterministic and auditable: the same input always gives the same outcome.",
+          "No dependency on a model being available or behaving predictably.",
+          "A trained classifier is future work. This was the right call at prototype stage."
         ]
       },
       right: {
         h: "What happens on a match",
         items: [
           "The AI is bypassed entirely for that message.",
-          "A fixed response returns Lifeline, Beyond Blue, and emergency numbers.",
-          "Safety-first architecture, decided before a single chat feature was built."
+          "A fixed response returns Lifeline, Beyond Blue and emergency numbers.",
+          "The decision was made before any chat feature was built."
         ]
       }
     }
@@ -483,7 +507,7 @@ function projectSlideHTML(p) {
         <div class="body-grid">
           <div class="narrative fade-in" style="animation-delay:.1s">
             <h4>The problem</h4>
-            <p>${p.problem}</p>
+            <ul>${p.problem.map(i => `<li>${i}</li>`).join('')}</ul>
             <div class="key-decision">
               <div class="label">Key decision</div>
               <p>${p.keyDecision}</p>
@@ -541,12 +565,11 @@ slides.forEach((s, i) => {
         <h1 class="fade-in" style="animation-delay:.08s">Tarun Bonu</h1>
         <p class="sub fade-in" style="animation-delay:.16s">Three parts to the hour. Start wherever you'd like.</p>
         <div class="hub-row fade-in" style="animation-delay:.24s">
-          <a class="part-card" href="kohonen_code_review.html" target="_blank" rel="noopener">
+          <a class="part-card" href="kohonen_code_review.html">
             <span class="part-num">PART 01</span>
             <h3>Code review</h3>
             <p>A Kohonen self-organising map: observations, my top five recommendations, and the before and after of each.</p>
             <span class="part-go">Open the review <span class="arrow">&rarr;</span></span>
-            <span class="ext">Opens in a new tab</span>
           </a>
           <button class="part-card" data-goto="title">
             <span class="part-num">PART 02</span>

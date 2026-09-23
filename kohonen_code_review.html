@@ -6,932 +6,261 @@
 <title>Kohonen SOM Code Review</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 :root{
-  --ground:#f6f6f9;
+  --ground:#f7f7f9;
   --surface:#ffffff;
   --ink:#17161f;
   --ink-soft:#413e52;
   --muted:#6d6a7f;
   --rule:#e2e1ea;
-  --rule-soft:#eeedf3;
   --accent:#4a46c8;
   --accent-wash:#eeedfb;
-  --before:#c23a24;
-  --before-wash:#fceeea;
-  --after:#2f7d4f;
-  --after-wash:#e9f5ed;
+  --yes:#2f7d4f;
+  --no:#c23a24;
   --code-bg:#1b1a24;
   --code-ink:#e6e4ef;
   --code-dim:#8f8ba6;
-
-  --f-display:"IBM Plex Serif",Georgia,"Times New Roman",serif;
   --f-body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-
-  --col:68ch;
-  --wide:min(1120px,100% - 32px);
 }
-
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
 body{
   margin:0;
   background:var(--ground);
   color:var(--ink);
   font-family:var(--f-body);
-  font-size:16px;
-  line-height:1.62;
+  font-size:16.5px;
+  line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
-img{max-width:100%;display:block}
+.wrap{width:min(860px,100% - 32px);margin-inline:auto;padding-block:48px 64px}
 
-/* ---------- layout ---------- */
-.wrap{
-  width:var(--wide);
-  margin-inline:auto;
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  justify-items:center;
-}
-.col{width:min(var(--col),100%)}
-
-/* Code and comparison blocks need more room than the prose measure, so they
-   break out of the reading column and re-centre on the page. */
-.snippet,.compare,.trees,.next{
-  /* Not --wide: it carries a percentage, which would resolve against the
-     narrow reading column instead of the page. */
-  width:min(1120px,calc(100vw - 32px));
-  max-width:none;
-  position:relative;
-  left:50%;
-  transform:translateX(-50%);
-}
-
-section{padding-block:0}
-
-/* ---------- masthead ---------- */
-.masthead{
-  border-bottom:1px solid var(--rule);
-  background:var(--surface);
-  padding-block:44px 38px;
-}
+h1{font-size:1.9rem;font-weight:600;letter-spacing:-.015em;margin:.3rem 0 .4rem;line-height:1.15}
+.sub{color:var(--muted);margin:0 0 2.6rem;font-size:.95rem}
 .eyebrow{
   font-family:var(--f-mono);
   font-size:.7rem;
-  font-weight:500;
   letter-spacing:.14em;
   text-transform:uppercase;
   color:var(--accent);
 }
-h1{
-  font-family:var(--f-display);
-  font-weight:600;
-  font-size:clamp(2rem,1.4rem + 2.6vw,3.1rem);
-  line-height:1.08;
-  letter-spacing:-.018em;
-  text-wrap:balance;
-  margin:.34em 0 0;
-}
-.standfirst{
-  font-family:var(--f-display);
-  font-size:1.14rem;
-  font-style:italic;
-  color:var(--ink-soft);
-  margin:.85rem 0 0;
-  max-width:56ch;
-}
-.byline{
-  display:flex;
-  flex-wrap:wrap;
-  gap:.5rem 1.4rem;
-  margin-top:1.6rem;
-  padding-top:1.1rem;
-  border-top:1px solid var(--rule-soft);
-  font-family:var(--f-mono);
-  font-size:.76rem;
-  color:var(--muted);
-}
-.byline b{color:var(--ink-soft);font-weight:500}
-
-/* ---------- the brief ---------- */
-.brief{background:var(--surface);padding-block:0 46px}
-.qa{
-  display:grid;
-  gap:0;
-  margin:0;
-  border-top:1px solid var(--rule);
-}
-.qa div{
-  display:grid;
-  grid-template-columns:2.2rem minmax(0,1fr) auto;
-  gap:0 .9rem;
-  align-items:baseline;
-  padding:.95rem 0;
-  border-bottom:1px solid var(--rule-soft);
-}
-.qa dt{
-  grid-column:2;
-  font-weight:500;
-  color:var(--ink-soft);
-  margin:0;
-}
-.qa .qn{
-  grid-column:1;
-  font-family:var(--f-mono);
-  font-size:.74rem;
-  color:var(--muted);
-}
-.qa dd{
-  grid-column:3;
-  margin:0;
-  font-family:var(--f-mono);
-  font-size:.78rem;
-  font-weight:600;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-}
-.yes{color:var(--after)}
-.no{color:var(--before)}
-.qa dd.neutral{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400}
-
-/* ---------- headline result ---------- */
-.result{
-  background:var(--code-bg);
-  color:var(--code-ink);
-  padding-block:52px;
-}
-.result .eyebrow{color:#9c98e8}
-.bench{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
-  gap:1px;
-  margin-top:1.8rem;
-  background:#2c2a38;
-  border:1px solid #2c2a38;
-}
-.bench > div{background:var(--code-bg);padding:1.3rem 1.4rem}
-.bench .run{
-  font-family:var(--f-mono);
-  font-size:.73rem;
-  color:var(--code-dim);
-  letter-spacing:.03em;
-}
-.times{
-  display:flex;
-  align-items:baseline;
-  gap:.62rem;
-  margin-top:.75rem;
-  flex-wrap:wrap;
-}
-.t-old{
-  font-family:var(--f-mono);
-  font-size:1rem;
-  color:#d98b79;
-  text-decoration:line-through;
-  text-decoration-thickness:1px;
-}
-.t-arrow{color:var(--code-dim);font-size:.9rem}
-.t-new{
-  font-family:var(--f-mono);
-  font-size:1.65rem;
-  font-weight:600;
-  color:#7fd3a0;
-  font-variant-numeric:tabular-nums;
-}
-.speedup{
-  margin-top:.55rem;
-  font-family:var(--f-mono);
-  font-size:.75rem;
-  color:var(--code-dim);
-}
-.speedup b{color:var(--code-ink);font-weight:600}
-.result-note{
-  margin-top:1.5rem;
-  font-size:.88rem;
-  color:var(--code-dim);
-  max-width:62ch;
-}
-.result-note code{color:#bfbbd8;background:#26242f;padding:.08em .34em;border-radius:3px}
-
-/* ---------- generic section ---------- */
-.band{background:var(--surface);padding-block:54px;border-top:1px solid var(--rule)}
-.band.alt{background:var(--ground)}
 h2{
-  font-family:var(--f-display);
+  font-size:1.18rem;
   font-weight:600;
-  font-size:1.72rem;
-  letter-spacing:-.012em;
-  line-height:1.2;
-  margin:.28em 0 0;
-  text-wrap:balance;
+  margin:3rem 0 1rem;
+  padding-bottom:.5rem;
+  border-bottom:1px solid var(--rule);
 }
-h3{
-  font-family:var(--f-body);
-  font-size:1.02rem;
-  font-weight:600;
-  margin:1.9rem 0 .45rem;
-}
-p{margin:.95rem 0}
-.lede{font-size:1.06rem;color:var(--ink-soft)}
-a{color:var(--accent)}
+p{margin:.8rem 0}
 code{
   font-family:var(--f-mono);
-  font-size:.875em;
+  font-size:.86em;
   background:var(--accent-wash);
   color:#3b37a8;
-  padding:.1em .36em;
+  padding:.1em .34em;
   border-radius:3px;
 }
 
-/* ---------- code blocks ---------- */
+/* the three questions */
+.q{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:1.2rem 1.4rem;margin-bottom:.8rem}
+.q-head{display:flex;gap:1rem;align-items:baseline;justify-content:space-between}
+.q-head h3{margin:0;font-size:1.02rem;font-weight:600;line-height:1.35}
+.verdict{
+  font-family:var(--f-mono);
+  font-size:.82rem;
+  font-weight:600;
+  letter-spacing:.06em;
+  flex:none;
+}
+.verdict.yes{color:var(--yes)}
+.verdict.no{color:var(--no)}
+.q ul{margin:.85rem 0 0;padding-left:1.1rem}
+.q li{margin:.3rem 0;color:var(--ink-soft)}
+.q li::marker{color:var(--accent)}
+.q > p{margin:.6rem 0 0;color:var(--muted);font-size:.93rem}
+
+/* plain numbered lists */
+ol.plain{margin:1rem 0;padding-left:1.4rem}
+ol.plain li{margin:.42rem 0}
+ol.plain li::marker{color:var(--muted);font-family:var(--f-mono);font-size:.85rem}
+ol.plain li span{color:var(--muted);font-size:.93rem}
+
+/* code */
 pre{
   margin:0;
   background:var(--code-bg);
   color:var(--code-ink);
   font-family:var(--f-mono);
-  font-size:.795rem;
-  line-height:1.72;
-  padding:1.15rem 1.3rem;
+  font-size:.79rem;
+  line-height:1.7;
+  padding:1.1rem 1.2rem;
   overflow-x:auto;
-  tab-size:2;
+  border-radius:6px;
 }
-pre code{background:none;color:inherit;padding:0;font-size:inherit}
-.c-com{color:#7d799a}
-.c-key{color:#c49ae8}
-.c-fn{color:#8ec7f2}
-.c-str{color:#9ed9a8}
-.c-num{color:#e8b48a}
-.c-bad{color:#f0917c;font-weight:500}
-.c-good{color:#8fe0ab;font-weight:500}
-
-.snippet{
-  border:1px solid var(--rule);
-  margin-top:1.15rem;
-  background:var(--code-bg);
-}
-.snippet > figcaption{
+pre code{background:none;color:inherit;padding:0;font-size:inherit;border-radius:0}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:.8rem;margin-top:1rem}
+.pane h4{
+  margin:0 0 .45rem;
   font-family:var(--f-mono);
-  font-size:.7rem;
+  font-size:.69rem;
   letter-spacing:.09em;
   text-transform:uppercase;
-  padding:.6rem 1.3rem;
-  border-bottom:1px solid #2c2a38;
-  color:var(--code-dim);
-}
-
-.compare{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
-  gap:1px;
-  background:var(--rule);
-  border:1px solid var(--rule);
-  margin-top:1.25rem;
-}
-.pane{display:flex;flex-direction:column;min-width:0;background:var(--code-bg)}
-.pane-head{
-  display:flex;
-  align-items:center;
-  gap:.55rem;
-  padding:.62rem 1.3rem;
-  border-bottom:1px solid #2c2a38;
-  font-family:var(--f-mono);
-  font-size:.7rem;
-  letter-spacing:.09em;
-  text-transform:uppercase;
-}
-.pane-head.before{color:#e0967f}
-.pane-head.after{color:#8fe0ab}
-.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
-.pane pre{flex:1}
-
-/* ---------- findings ---------- */
-.finding{
-  border-top:1px solid var(--rule);
-  padding-block:2.4rem;
-}
-.finding:first-of-type{border-top:none;padding-top:1.4rem}
-.f-head{display:flex;gap:1rem;align-items:baseline}
-.f-num{
-  font-family:var(--f-mono);
-  font-size:.82rem;
-  font-weight:600;
-  color:var(--accent);
-  background:var(--accent-wash);
-  padding:.16rem .5rem;
-  border-radius:3px;
-  flex:none;
-}
-.f-title{
-  font-family:var(--f-display);
-  font-size:1.34rem;
-  font-weight:600;
-  line-height:1.24;
-  letter-spacing:-.01em;
-  margin:0;
-  text-wrap:balance;
-}
-.f-tags{
-  display:flex;
-  flex-wrap:wrap;
-  gap:.4rem;
-  margin:.85rem 0 0 0;
-  padding-left:calc(.82rem + 1.6rem);
-}
-.tag{
-  font-family:var(--f-mono);
-  font-size:.66rem;
-  letter-spacing:.07em;
-  text-transform:uppercase;
-  padding:.2rem .52rem;
-  border:1px solid var(--rule);
-  border-radius:100px;
-  color:var(--muted);
-}
-.tag.sev{border-color:#e8c4bb;background:var(--before-wash);color:var(--before)}
-.f-body{padding-left:calc(.82rem + 1.6rem)}
-
-/* Inside a finding the body is indented, so the breakout re-centres against
-   the page rather than against the indented content box. */
-.f-body .snippet,.f-body .compare{left:calc(50% - (.82rem + 1.6rem) / 2)}
-
-@media (max-width:560px){
-  .f-tags,.f-body{padding-left:0}
-  .f-head{gap:.7rem}
-  .f-body .snippet,.f-body .compare{left:50%}
-}
-
-.why{
-  border-left:2px solid var(--accent);
-  background:var(--accent-wash);
-  padding:.85rem 1.1rem;
-  margin-top:1.15rem;
-}
-.why p{margin:0;font-size:.94rem;color:var(--ink-soft)}
-.why .label{
-  font-family:var(--f-mono);
-  font-size:.66rem;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-  color:var(--accent);
-  display:block;
-  margin-bottom:.3rem;
-}
-
-ul.tight{margin:.8rem 0;padding-left:1.15rem}
-ul.tight li{margin:.34rem 0}
-ul.tight li::marker{color:var(--muted)}
-
-/* ---------- maths callout ---------- */
-.maths{
-  font-family:var(--f-mono);
-  font-size:.83rem;
-  background:var(--ground);
-  border:1px solid var(--rule);
-  padding:.9rem 1.1rem;
-  margin-top:1.1rem;
-  overflow-x:auto;
-  color:var(--ink-soft);
-}
-
-/* ---------- tree ---------- */
-.trees{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(285px,1fr));
-  gap:1.15rem;
-  margin-top:1.3rem;
-}
-.tree{border:1px solid var(--rule);background:var(--surface)}
-.tree h4{
-  margin:0;
-  font-family:var(--f-mono);
-  font-size:.7rem;
-  letter-spacing:.09em;
-  text-transform:uppercase;
-  padding:.62rem 1.1rem;
-  border-bottom:1px solid var(--rule);
-  color:var(--muted);
   font-weight:500;
 }
-.tree pre{
-  background:none;
-  color:var(--ink-soft);
-  font-size:.79rem;
-  line-height:1.66;
-  padding:1rem 1.1rem;
-}
-.tree .c-com{color:var(--muted)}
-.tree .new{color:var(--after);font-weight:500}
+.pane.before h4{color:var(--no)}
+.pane.after h4{color:var(--yes)}
+.c-com{color:#7d799a}
+.c-key{color:#c49ae8}
+.c-num{color:#e8b48a}
 
-/* ---------- map figure ---------- */
-.maps{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:1.2rem;
-  margin-top:1.4rem;
-}
-.map figcaption{
-  font-family:var(--f-mono);
-  font-size:.72rem;
-  color:var(--muted);
-  margin-top:.55rem;
-}
-.map .chip{
-  display:inline-block;
-  width:100%;
-  aspect-ratio:1;
-  max-width:100%;
-  border:1px solid var(--rule);
-  image-rendering:pixelated;
-}
+/* results */
+.bench{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.8rem;margin-top:1.1rem}
+.bench > div{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem}
+.bench .run{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.bench .t{display:flex;align-items:baseline;gap:.5rem;margin-top:.5rem;flex-wrap:wrap}
+.bench .old{font-family:var(--f-mono);font-size:.92rem;color:var(--no);text-decoration:line-through}
+.bench .new{font-family:var(--f-mono);font-size:1.4rem;font-weight:600;color:var(--yes)}
+.bench .arrow{color:var(--muted)}
 
-/* ---------- next steps ---------- */
-.next{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
-  gap:1px;
-  background:var(--rule);
-  border:1px solid var(--rule);
-  margin-top:1.4rem;
-}
-.next > div{background:var(--surface);padding:1.15rem 1.25rem}
-.next h4{
-  margin:0 0 .35rem;
-  font-size:.95rem;
-  font-weight:600;
-}
-.next p{margin:0;font-size:.89rem;color:var(--muted);line-height:1.56}
-.next .state{
-  font-family:var(--f-mono);
-  font-size:.64rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
+.back{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  font-size:.85rem;
+  font-weight:500;
   color:var(--accent);
-  display:block;
-  margin-bottom:.45rem;
+  text-decoration:none;
+  margin-bottom:1.6rem;
 }
-
-/* ---------- footer ---------- */
-footer{
-  background:var(--surface);
-  border-top:1px solid var(--rule);
-  padding-block:34px 44px;
-}
-footer p{
-  font-family:var(--f-mono);
-  font-size:.76rem;
-  color:var(--muted);
-  margin:0;
-}
-
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-}
+.back:hover{text-decoration:underline}
+footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header class="masthead">
-  <div class="wrap"><div class="col">
-    <span class="eyebrow">Code review exercise</span>
-    <h1>Kohonen Self-Organising Map</h1>
-    <p class="standfirst">Thirty-four lines that work correctly on the example given, and fall over on almost anything else. Here is what I found, and what I changed.</p>
-    <div class="byline">
-      <span><b>Tarun Bonu</b></span>
-      <span>Reviewed <b>September 2026</b></span>
-      <span>Subject <b>kohonen/problematic_code.py</b></span>
+  <a class="back" href="tarun_experience_presentation.html">&larr; Back to the presentation</a>
+
+  <span class="eyebrow">Code review</span>
+  <h1>Kohonen Self-Organising Map</h1>
+  <p class="sub">Tarun Bonu &middot; September 2026</p>
+
+  <h2>The three questions</h2>
+
+  <div class="q">
+    <div class="q-head">
+      <h3>Could the code be made more efficient?</h3>
+      <span class="verdict yes">YES</span>
     </div>
-  </div></div>
-</header>
+    <p>Removing the nested loops took the large run from 5m 54s to 4.76s. Detail below.</p>
+  </div>
 
-<section class="brief">
-  <div class="wrap"><div class="col">
-    <dl class="qa">
-      <div>
-        <span class="qn">Q1</span>
-        <dt>Could the code be made more efficient?</dt>
-        <dd class="yes">Yes</dd>
-      </div>
-      <div>
-        <span class="qn">Q2</span>
-        <dt>Is the code best structured for later use by other developers?</dt>
-        <dd class="no">No</dd>
-      </div>
-      <div>
-        <span class="qn">Q3</span>
-        <dt>How would you approach productionising this application?</dt>
-        <dd class="neutral">See below</dd>
-      </div>
-    </dl>
-  </div></div>
-</section>
-
-<section class="result">
-  <div class="wrap"><div class="col">
-    <span class="eyebrow">Measured, same machine, same output</span>
-    <h2 style="color:var(--code-ink)">The efficiency answer, first</h2>
-    <div class="bench">
-      <div>
-        <div class="run">100 iterations &middot; 10 &times; 10 grid</div>
-        <div class="times">
-          <span class="t-old">0.47s</span>
-          <span class="t-arrow">&rarr;</span>
-          <span class="t-new">0.03s</span>
-        </div>
-        <div class="speedup"><b>~16&times;</b> faster</div>
-      </div>
-      <div>
-        <div class="run">1000 iterations &middot; 100 &times; 100 grid</div>
-        <div class="times">
-          <span class="t-old">5m 54s</span>
-          <span class="t-arrow">&rarr;</span>
-          <span class="t-new">4.24s</span>
-        </div>
-        <div class="speedup"><b>~83&times;</b> faster</div>
-      </div>
+  <div class="q">
+    <div class="q-head">
+      <h3>Is the code best structured for later use by other developers and in anticipation of productionisation?</h3>
+      <span class="verdict no">NO</span>
     </div>
-    <p class="result-note">One change produced nearly all of that: replacing the per-node Python loop with a NumPy array operation. No threading, no multiprocessing, no compiled extension. The algorithm is unchanged and the maps it produces are the same. Detail in <code>Finding 02</code>.</p>
-  </div></div>
-</section>
+    <p>Everything is in one file and one function, with no comments, no config, no checks and no tests.</p>
+  </div>
 
-<section class="band">
-  <div class="wrap"><div class="col">
-    <span class="eyebrow">Starting point</span>
-    <h2>The code under review</h2>
-    <p class="lede">Worth saying up front: this is not bad code. It is a faithful, readable transcription of the algorithm straight out of the paper, and it produces a correct map. Every problem below comes from the gap between working once and being run, changed and trusted by other people.</p>
+  <div class="q">
+    <div class="q-head">
+      <h3>How would you approach productionising this application?</h3>
+    </div>
+    <ul>
+      <li>First improve the code structure so that it can be easily interpreted and be made modular</li>
+      <li>Add error handling and logging</li>
+      <li>Improve efficiency</li>
+    </ul>
+  </div>
 
-    <figure class="snippet">
-      <figcaption>problematic_code.py</figcaption>
-<pre><code><span class="c-com"># kohonen.py</span>
-<span class="c-key">import</span> matplotlib.pyplot <span class="c-key">as</span> plt
-<span class="c-key">import</span> numpy <span class="c-key">as</span> np
+  <h2>Initial thoughts, as soon as I looked at the code</h2>
+  <ol class="plain">
+    <li>Missing comments</li>
+    <li>Modularity</li>
+    <li>Bad variable usage</li>
+    <li>The mathematical terminologies are not good. When editing code they cannot be typed on the keyboard. <span>These should come from a Python package instead, <code>math</code>.</span></li>
+    <li>Need a config file with all the constants in it</li>
+    <li>No test cases</li>
+    <li>No guardrails or checks involved</li>
+    <li>Need Docker and a virtual environment for packages</li>
+  </ol>
 
-<span class="c-key">def</span> <span class="c-fn">train</span>(input_data, n_max_iterations, width, height):
-    <span class="c-bad">&sigma;0</span> = max(width, height) / <span class="c-num">2</span>
-    <span class="c-bad">&alpha;0</span> = <span class="c-num">0.1</span>
-    weights = np.random.random((width, height, <span class="c-bad">3</span>))
-    <span class="c-bad">&lambda;</span> = n_max_iterations / np.log(<span class="c-bad">&sigma;0</span>)
-    <span class="c-key">for</span> t <span class="c-key">in</span> range(n_max_iterations):
-        <span class="c-bad">&sigma;t</span> = <span class="c-bad">&sigma;0</span> * np.exp(-t/<span class="c-bad">&lambda;</span>)
-        <span class="c-bad">&alpha;t</span> = <span class="c-bad">&alpha;0</span> * np.exp(-t/<span class="c-bad">&lambda;</span>)
-        <span class="c-key">for</span> vt <span class="c-key">in</span> input_data:
-            bmu = np.argmin(np.sum((weights - vt) ** <span class="c-num">2</span>, axis=<span class="c-num">2</span>))
-            bmu_x, bmu_y = np.unravel_index(bmu, (width, height))
-            <span class="c-bad">for x in range(width):</span>
-                <span class="c-bad">for y in range(height):</span>
-                    di = np.sqrt(((x - bmu_x) ** <span class="c-num">2</span>) + ((y - bmu_y) ** <span class="c-num">2</span>))
-                    <span class="c-bad">&theta;t</span> = np.exp(-(di ** <span class="c-num">2</span>) / (<span class="c-num">2</span>*(<span class="c-bad">&sigma;t</span> ** <span class="c-num">2</span>)))
-                    weights[x, y] += <span class="c-bad">&alpha;t</span> * <span class="c-bad">&theta;t</span> * (vt - weights[x, y])
-    <span class="c-key">return</span> weights
+  <h2>Implemented, in this order</h2>
+  <ol class="plain">
+    <li>Good formatting in terms of a repo structure, adding a README</li>
+    <li>Requirements.txt, virtual environment, gitignore</li>
+    <li>Performance analysis, benchmarking <span>(100 iterations 0.47s, 1000 iterations 5m 54s)</span></li>
+    <li>Better variables and better notations for mathematical equations</li>
+    <li>Constants added to a config</li>
+    <li>Addition of modularity, to use the training method as a function call</li>
+    <li>Added comments to make the code more readable</li>
+    <li>Addition of logs to print the training progress <span>(also very useful to debug and track errors)</span></li>
+    <li>Error handling for any failures</li>
+  </ol>
 
-<span class="c-key">if</span> __name__ == <span class="c-str">'__main__'</span>:
-    <span class="c-com"># Generate data</span>
-    input_data = np.random.random((<span class="c-num">10</span>,<span class="c-num">3</span>))
-    image_data = train(input_data, <span class="c-num">100</span>, <span class="c-num">10</span>, <span class="c-num">10</span>)
+  <h2>Improving efficiency of the training iterations</h2>
+  <p>Three things I considered:</p>
+  <ol class="plain">
+    <li>Some nested loop structure could be avoided</li>
+    <li>Multi-threading for node-level calculations <span>(rejected, the GIL blocks any gain on pure Python arithmetic)</span></li>
+    <li>Using matrix operations to optimise</li>
+  </ol>
 
-    plt.imsave(<span class="c-str">'100.png'</span>, image_data)
+  <p><b>Performed one change: removal of the loops.</b> Instead of updating nodes one at a time, I now update them through a vector operation.</p>
 
-    <span class="c-com"># Generate data</span>
-    input_data = np.random.random((<span class="c-num">10</span>,<span class="c-num">3</span>))
-    image_data = train(input_data, <span class="c-num">1000</span>, <span class="c-num">100</span>, <span class="c-num">100</span>)
-
-    plt.imsave(<span class="c-str">'1000.png'</span>, image_data)</code></pre>
-    </figure>
-  </div></div>
-</section>
-
-<section class="band alt">
-  <div class="wrap"><div class="col">
-    <span class="eyebrow">Findings, ranked by what I would fix first</span>
-    <h2>Top five recommendations</h2>
-
-    <!-- ===== 01 ===== -->
-    <article class="finding">
-      <div class="f-head">
-        <span class="f-num">01</span>
-        <h3 class="f-title">The input dimensionality is hardcoded to 3</h3>
-      </div>
-      <div class="f-tags">
-        <span class="tag sev">Correctness</span>
-        <span class="tag">Silent failure</span>
-      </div>
-      <div class="f-body">
-        <p>The weight grid is built as <code>(width, height, 3)</code>. That <code>3</code> is not a property of the map, it is the dimensionality of the input data, and it only happens to be right because the example feeds in RGB colours.</p>
-
-        <div class="why">
-          <span class="label">Why this is first</span>
-          <p>The reason to reach for a SOM at all is high-dimensional data: a 50-field customer profile, a sensor vector, a document embedding. This implementation handles exactly one case, the 3-dimensional one, which is the case you least need a SOM for. Pass 50-dimensional data and it raises a broadcasting error from inside the training loop, with nothing pointing at the real cause.</p>
-        </div>
-
-        <div class="compare">
-          <div class="pane">
-            <div class="pane-head before"><span class="dot"></span>Before</div>
-<pre><code>weights = np.random.random((width, height, <span class="c-bad">3</span>))</code></pre>
-          </div>
-          <div class="pane">
-            <div class="pane-head after"><span class="dot"></span>After</div>
-<pre><code><span class="c-com"># n_dimensions comes from config, validated</span>
-<span class="c-com"># against the data before training starts</span>
-weights = utils.<span class="c-fn">initialise_weights</span>(
-    width, height, <span class="c-good">n_dimensions</span>
-)</code></pre>
-          </div>
-        </div>
-
-        <p>Paired with an explicit check, so a mismatch fails immediately with a message that says what is wrong:</p>
-        <figure class="snippet">
-          <figcaption>validations.py</figcaption>
-<pre><code><span class="c-key">if</span> input_data.shape[<span class="c-num">1</span>] != n_dimensions:
-    <span class="c-key">raise</span> <span class="c-fn">ValueError</span>(
-        <span class="c-str">f"input_data has {input_data.shape[1]} dimensions "</span>
-        <span class="c-str">f"but n_dimensions is {n_dimensions}"</span>
-    )</code></pre>
-        </figure>
-      </div>
-    </article>
-
-    <!-- ===== 02 ===== -->
-    <article class="finding">
-      <div class="f-head">
-        <span class="f-num">02</span>
-        <h3 class="f-title">Every node is updated one at a time, in Python</h3>
-      </div>
-      <div class="f-tags">
-        <span class="tag sev">Performance</span>
-        <span class="tag">~83&times; on the large run</span>
-      </div>
-      <div class="f-body">
-        <p>The inner <code>for x</code> / <code>for y</code> pair walks the grid node by node. NumPy is already imported and already in use, but the grid work is being done by the Python interpreter rather than by NumPy.</p>
-
-        <div class="maths">1000 iterations &times; 10 input vectors &times; (100 &times; 100 nodes) = <b>100,000,000</b> interpreter-level loop passes</div>
-
-        <div class="why">
-          <span class="label">The insight</span>
-          <p>Influence and the weight update are the same arithmetic applied independently to every node. Nothing in the inner loop depends on the result of the previous node, so it never needed to be a loop. Broadcasting the grid coordinates against the BMU position computes the whole influence field in one array operation.</p>
-        </div>
-
-        <div class="compare">
-          <div class="pane">
-            <div class="pane-head before"><span class="dot"></span>Before: per-node Python</div>
+  <div class="compare">
+    <div class="pane before">
+      <h4>Before</h4>
 <pre><code><span class="c-key">for</span> x <span class="c-key">in</span> range(width):
     <span class="c-key">for</span> y <span class="c-key">in</span> range(height):
         di = np.sqrt(((x - bmu_x) ** <span class="c-num">2</span>)
                      + ((y - bmu_y) ** <span class="c-num">2</span>))
-        &theta;t = np.exp(-(di ** <span class="c-num">2</span>)
-                    / (<span class="c-num">2</span>*(&sigma;t ** <span class="c-num">2</span>)))
-        weights[x, y] += &alpha;t * &theta;t * (vt - weights[x, y])</code></pre>
-          </div>
-          <div class="pane">
-            <div class="pane-head after"><span class="dot"></span>After: whole grid at once</div>
-<pre><code><span class="c-com"># (width,1) against (1,height) broadcasts</span>
-<span class="c-com"># to the full (width,height) grid</span>
+        &theta;t = np.exp(-(di ** <span class="c-num">2</span>) / (<span class="c-num">2</span>*(&sigma;t ** <span class="c-num">2</span>)))
+        weights[x, y] += &alpha;t * &theta;t * (
+            vt - weights[x, y])</code></pre>
+    </div>
+    <div class="pane after">
+      <h4>After</h4>
+<pre><code><span class="c-com"># whole grid in one operation</span>
 distance_squared = (
     (x_coords[:, np.newaxis] - bmu_x) ** <span class="c-num">2</span>
     + (y_coords[np.newaxis, :] - bmu_y) ** <span class="c-num">2</span>
 )
-influence = np.exp(-distance_squared
-                   / (<span class="c-num">2</span> * sigma_t ** <span class="c-num">2</span>))
+influence = np.exp(
+    -distance_squared / (<span class="c-num">2</span> * sigma_t ** <span class="c-num">2</span>))
 
-weights += (alpha_t * influence)[:, :, np.newaxis] \
-           * (input_vector - weights)</code></pre>
-          </div>
-        </div>
-
-        <h3>Two smaller wins that came with it</h3>
-        <ul class="tight">
-          <li><b>No square root.</b> The original takes <code>sqrt</code> to get the distance, then immediately squares it again inside the Gaussian. Keeping the distance squared throughout removes a wasted operation per node. The same reasoning applies to the BMU search, where squared distance is enough to find the minimum.</li>
-          <li><b>Grid coordinates built once.</b> <code>np.arange(width)</code> and <code>np.arange(height)</code> never change during training, so they are computed once per run rather than rebuilt inside the loop.</li>
-        </ul>
-
-        <div class="why">
-          <span class="label">What I considered and rejected</span>
-          <p>Threading was the first idea, since node updates look embarrassingly parallel. It is the wrong tool here: the GIL blocks any gain on pure Python arithmetic, and the vectorised version already pushes the work into NumPy's C loops, which release the GIL anyway. Vectorising first meant the concurrency question never needed answering.</p>
-        </div>
-      </div>
-    </article>
-
-    <!-- ===== 03 ===== -->
-    <article class="finding">
-      <div class="f-head">
-        <span class="f-num">03</span>
-        <h3 class="f-title">Greek variable names that cannot be typed</h3>
-      </div>
-      <div class="f-tags">
-        <span class="tag sev">Maintainability</span>
-        <span class="tag">Collaboration</span>
-      </div>
-      <div class="f-body">
-        <p><code>&sigma;0</code>, <code>&alpha;t</code>, <code>&lambda;</code> and <code>&theta;t</code> are valid Python 3 identifiers, and they match the notation in the paper exactly. That is the argument for them. The argument against is practical: a developer cannot type them without a character picker, cannot grep for them reliably, and cannot say them out loud in a review.</p>
-
-        <div class="why">
-          <span class="label">The underlying issue</span>
-          <p>Matching the paper's notation is a real goal, it just belongs in the docstring rather than in the identifiers. Naming <code>sigma_0</code> in code and explaining that it is the paper's &sigma;&#8320; in a comment gives you both: the code stays typeable, and the link to the source maths stays explicit.</p>
-        </div>
-
-        <div class="compare">
-          <div class="pane">
-            <div class="pane-head before"><span class="dot"></span>Before</div>
-<pre><code>&sigma;0 = max(width, height) / <span class="c-num">2</span>
-&lambda; = n_max_iterations / np.log(&sigma;0)
-&sigma;t = &sigma;0 * np.exp(-t/&lambda;)
-&alpha;t = &alpha;0 * np.exp(-t/&lambda;)</code></pre>
-          </div>
-          <div class="pane">
-            <div class="pane-head after"><span class="dot"></span>After</div>
-<pre><code>sigma_0 = utils.<span class="c-fn">initial_radius</span>(width, height)
-time_constant = utils.<span class="c-fn">decay_constant</span>(
-    n_max_iterations, sigma_0
-)
-sigma_t = utils.<span class="c-fn">exponential_decay</span>(
-    sigma_0, iteration, time_constant
-)
-alpha_t = utils.<span class="c-fn">exponential_decay</span>(
-    alpha_0, iteration, time_constant
-)</code></pre>
-          </div>
-        </div>
-
-        <p>Naming the decay as a shared function also surfaces something the original hides: the radius and the learning rate are not just similar, they run on one identical schedule. That is a design decision worth being able to see, and worth being able to change in one place.</p>
-
-        <p>The same pass replaced <code>vt</code> with <code>input_vector</code>, <code>di</code> with <code>distance_squared</code>, and added docstrings to every function. Names now say what a thing is rather than which letter it was in the paper.</p>
-      </div>
-    </article>
-
-    <!-- ===== 04 ===== -->
-    <article class="finding">
-      <div class="f-head">
-        <span class="f-num">04</span>
-        <h3 class="f-title">Constants are buried in the function body</h3>
-      </div>
-      <div class="f-tags">
-        <span class="tag sev">Operability</span>
-        <span class="tag">Reproducibility</span>
-      </div>
-      <div class="f-body">
-        <p>The learning rate <code>0.1</code> sits inside <code>train()</code>. Grid sizes, iteration counts and output filenames sit inside <code>__main__</code>. Changing any of them means editing Python, which means a code change, a review and a commit for what is really a parameter sweep.</p>
-
-        <div class="why">
-          <span class="label">Why it matters beyond tidiness</span>
-          <p>Once tuning requires editing source, two things follow. Nobody without repo access can run an experiment, and there is no record of which settings produced which output. Moving the values into a config file makes the run parameters a versioned artefact that can sit next to the result.</p>
-        </div>
-
-        <figure class="snippet">
-          <figcaption>config.yaml</figcaption>
-<pre><code><span class="c-com"># Values here were previously hard-coded in kohonen_som.py.</span>
-som:
-  <span class="c-com"># Initial learning rate (alpha_0). Decays exponentially.</span>
-  initial_learning_rate: <span class="c-num">0.1</span>
-  <span class="c-com"># Dimensionality of each input and weight vector. 3 for RGB.</span>
-  n_dimensions: <span class="c-num">3</span>
-
-output:
-  directory: results
-
-logging:
-  level: INFO
-  <span class="c-com"># Log training progress every N iterations.</span>
-  log_every: <span class="c-num">200</span></code></pre>
-        </figure>
-
-        <p>The config is read through <code>load_config()</code>, which resolves the path relative to the module rather than the working directory, refuses a missing or empty file, uses <code>yaml.safe_load</code> rather than <code>load</code>, and validates every key before returning. A typo in the config fails at startup with the key name, not halfway through a six-minute run.</p>
-      </div>
-    </article>
-
-    <!-- ===== 05 ===== -->
-    <article class="finding">
-      <div class="f-head">
-        <span class="f-num">05</span>
-        <h3 class="f-title">Nothing checks the inputs, reports progress, or proves the output</h3>
-      </div>
-      <div class="f-tags">
-        <span class="tag sev">Production readiness</span>
-        <span class="tag">Observability</span>
-      </div>
-      <div class="f-body">
-        <p>Three gaps that are invisible while the code works and expensive the moment it does not.</p>
-
-        <h3>No guardrails</h3>
-        <p>Every argument is trusted. An empty array, a NaN, a zero-width grid or a learning rate of 5 all get through. Some raise a confusing NumPy error deep inside the loop; worse, some produce a plausible-looking map that is quietly wrong. One case is subtle enough to be worth calling out: <code>&lambda; = n_iterations / log(&sigma;0)</code> divides by <code>log(&sigma;0)</code>, so a 2&times;2 grid makes <code>&sigma;0 = 1</code>, <code>log(1) = 0</code>, and the decay constant becomes infinite. The fix validates that the larger grid side is at least 3 nodes, and explains why in a comment.</p>
-
-        <h3>No logging</h3>
-        <p>The 1000-iteration run took nearly six minutes and printed nothing. There was no way to tell it apart from a hang, and no way to see the decay schedule going wrong until the image came out. Training now logs its configuration on entry, then progress with the live <code>sigma</code> and <code>alpha</code> values, so a bad schedule is visible in the first few lines rather than at the end.</p>
-
-        <figure class="snippet">
-          <figcaption>Training output, 100 &times; 100 grid</figcaption>
-<pre><code><span class="c-com">19:35:39</span> INFO  Training start: 100x100 grid, 1000 iterations, 10 inputs, alpha_0=0.1
-<span class="c-com">19:35:40</span> INFO  Iteration 200/1000 (20%): sigma=22.955, alpha=0.0459, elapsed=0.86s
-<span class="c-com">19:35:41</span> INFO  Iteration 400/1000 (40%): sigma=10.497, alpha=0.0210, elapsed=1.70s
-<span class="c-com">19:35:42</span> INFO  Iteration 600/1000 (60%): sigma=4.801, alpha=0.0096, elapsed=2.55s
-<span class="c-com">19:35:43</span> INFO  Iteration 800/1000 (80%): sigma=2.195, alpha=0.0044, elapsed=3.40s
-<span class="c-com">19:35:43</span> INFO  Iteration 1000/1000 (100%): sigma=1.004, alpha=0.0020, elapsed=4.24s
-<span class="c-com">19:35:43</span> INFO  Training done: 100x100 grid in 4.24s</code></pre>
-        </figure>
-
-        <h3>No tests</h3>
-        <p>There is no way to change this code with confidence, because there is nothing that tells you when you have broken it. The properties are easy to assert: influence is exactly 1.0 at the BMU and falls with distance; a returned grid has shape <code>(width, height, n_dimensions)</code>; decay is monotonically decreasing; a known input moves its BMU closer to itself. Post-training checks are in place (shape and finiteness are asserted before the weights are returned or saved), and the validation layer is the part a test suite would exercise first.</p>
-        <p><b>Being straight about status:</b> the validation and logging described above are implemented. The unit tests are specified but not yet written. That is the top item on the list at the end of this page rather than something already done.</p>
-      </div>
-    </article>
-  </div></div>
-</section>
-
-<section class="band">
-  <div class="wrap"><div class="col">
-    <span class="eyebrow">Question three</span>
-    <h2>How I approached productionising it</h2>
-    <p class="lede">Structure first, then correctness, then speed. Restructuring before optimising meant the performance work landed in one small function with a clear contract, rather than being threaded through a 20-line block doing five jobs at once.</p>
-
-    <div class="trees">
-      <div class="tree">
-        <h4>Before</h4>
-<pre><code>kohonen.py   <span class="c-com">&larr; everything</span></code></pre>
-      </div>
-      <div class="tree">
-        <h4>After</h4>
-<pre><code>prod_code/
-├── kohonen_som.py     <span class="c-com">training loop</span>
-├── utils.py           <span class="c-com">config, maths, i/o</span>
-├── <span class="new">validations.py</span>      <span class="c-com">pre/post checks</span>
-├── <span class="new">config.yaml</span>         <span class="c-com">all constants</span>
-├── <span class="new">requirements.txt</span>    <span class="c-com">pinned deps</span>
-├── <span class="new">README.md</span>           <span class="c-com">what and why</span>
-└── results/           <span class="c-com">generated maps</span></code></pre>
-      </div>
+weights += (
+    (alpha_t * influence)[:, :, np.newaxis]
+    * (input_vector - weights))</code></pre>
     </div>
+  </div>
 
-    <h3>The order I worked in</h3>
-    <ul class="tight">
-      <li><b>Repo structure and a README,</b> so the shape of the thing is legible before anything moves.</li>
-      <li><b>Pinned requirements and a virtual environment,</b> so a run is reproducible on another machine.</li>
-      <li><b>Benchmark the original,</b> before touching it. Without the 5m 54s baseline there is no way to claim an improvement later.</li>
-      <li><b>Naming, docstrings and module boundaries,</b> pulling the maths into named single-purpose functions.</li>
-      <li><b>Constants into config,</b> with validation on load.</li>
-      <li><b>Logging and error handling,</b> including a top-level handler that logs the full traceback.</li>
-      <li><b>Then, and only then, performance.</b> By this point the update step was one function, so vectorising it was a contained change with an obvious before and after.</li>
-    </ul>
+  <p>Just this one change boosted performance:</p>
 
-    <p>The maps below are the output of the vectorised implementation. Similar colours sit next to each other, which is the topology-preserving property the algorithm exists to produce, and it is also the quickest visual check that a change has not broken anything.</p>
-
-    <div class="maps">
-      <figure class="map">
-        <img class="chip" src="kohonen/prod_code/results/100.png" alt="Trained 10 by 10 self-organising map after 100 iterations, rendered as coloured pixels">
-        <figcaption>10 &times; 10 grid, 100 iterations, 0.03s</figcaption>
-      </figure>
-      <figure class="map">
-        <img class="chip" src="kohonen/prod_code/results/1000.png" alt="Trained 100 by 100 self-organising map after 1000 iterations, showing smooth regions of similar colour">
-        <figcaption>100 &times; 100 grid, 1000 iterations, 4.24s</figcaption>
-      </figure>
+  <div class="bench">
+    <div>
+      <div class="run">100 iterations, 10 &times; 10 grid</div>
+      <div class="t"><span class="old">0.47s</span><span class="arrow">&rarr;</span><span class="new">0.03s</span></div>
     </div>
-  </div></div>
-</section>
-
-<section class="band alt">
-  <div class="wrap"><div class="col">
-    <span class="eyebrow">Honest status</span>
-    <h2>What I would do next</h2>
-    <p class="lede">The review asked for recommendations rather than a finished implementation, so this is where I stopped and what I would pick up next.</p>
-
-    <div class="next">
-      <div>
-        <span class="state">Next</span>
-        <h4>Unit tests</h4>
-        <p>The properties are already specified in Finding 05. The validation layer and the maths helpers are the natural first targets, since both are pure functions.</p>
-      </div>
-      <div>
-        <span class="state">Next</span>
-        <h4>Seeded runs</h4>
-        <p>Weight initialisation and input generation both call <code style="font-size:.85em">np.random</code> unseeded, so no two runs match. A seed in the config would make results reproducible and make tests deterministic.</p>
-      </div>
-      <div>
-        <span class="state">Next</span>
-        <h4>Type hints</h4>
-        <p>Docstrings document the shapes and types; hints would let a checker enforce them.</p>
-      </div>
-      <div>
-        <span class="state">Further out</span>
-        <h4>Batch the BMU search</h4>
-        <p>The BMU is still found one input vector at a time. For a large input set that loop becomes the next bottleneck, and the same broadcasting argument applies to it.</p>
-      </div>
-      <div>
-        <span class="state">Further out</span>
-        <h4>Persist the trained map</h4>
-        <p>The weights are saved as a PNG and otherwise discarded. A trained SOM is a model: it should be serialisable, and loadable to place new points without retraining.</p>
-      </div>
-      <div>
-        <span class="state">Further out</span>
-        <h4>CI and linting</h4>
-        <p>Tests and a linter on every push, so the guardrails stay enforced rather than depending on the person who last touched it.</p>
-      </div>
+    <div>
+      <div class="run">1000 iterations, 100 &times; 100 grid</div>
+      <div class="t"><span class="old">5m 54s</span><span class="arrow">&rarr;</span><span class="new">4.76s</span></div>
     </div>
-  </div></div>
-</section>
+  </div>
 
-<footer>
-  <div class="wrap"><div class="col">
-    <p>Tarun Bonu &middot; Kohonen SOM code review &middot; September 2026</p>
-  </div></div>
-</footer>
+  <h2>Longer term, for production code</h2>
+  <ol class="plain">
+    <li>Addition of unit tests <span>(specified, not yet written)</span></li>
+  </ol>
 
+  <footer>
+    Code in this repo under <code>kohonen/prod_code/</code> &middot;
+    <a href="tarun_experience_presentation.html" style="color:var(--accent)">Back to the presentation</a>
+  </footer>
+
+</div>
 </body>
 </html>
