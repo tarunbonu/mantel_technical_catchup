@@ -1,4 +1,4 @@
-<title>Tarun Bonu — Project Portfolio</title>
+<title>Tarun Bonu, Mantel Technical Interview</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap');
 
@@ -73,6 +73,32 @@
   .category-card .count { font-size: 0.78rem; color: var(--ink-faint); font-weight: 600; }
   .category-card .arrow { float: right; opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease; }
   .category-card:hover .arrow { opacity: 1; transform: translateX(3px); }
+
+  /* ---------- Hub slide: the three parts of the session ---------- */
+  .hub-slide { text-align: center; }
+  .hub-slide h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.2rem, 5.4vw, 3.6rem); margin: 0 0 0.9rem; line-height: 1.04; letter-spacing: -0.01em; text-wrap: balance; }
+  .hub-slide .sub { font-size: clamp(1rem, 1.8vw, 1.18rem); color: var(--ink-muted); max-width: 52ch; margin: 0 auto; }
+  .hub-row { display: flex; gap: 1.2rem; justify-content: center; margin-top: 2.8rem; flex-wrap: wrap; }
+  .part-card {
+    position: relative; display: flex; flex-direction: column; text-align: left;
+    width: clamp(230px, 27vw, 300px); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 18px; padding: 1.7rem 1.7rem 1.5rem;
+    cursor: pointer; font-family: var(--font-body); color: inherit; text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .part-card:hover, .part-card:focus-visible { transform: translateY(-5px); box-shadow: 0 16px 34px -16px rgba(20,24,28,0.32); border-color: var(--accent); outline: none; }
+  .part-card .part-num {
+    font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--accent-deep); background: var(--accent-soft); align-self: flex-start;
+    padding: 0.2rem 0.55rem; border-radius: 100px; margin-bottom: 0.9rem;
+  }
+  .part-card h3 { font-family: var(--font-display); font-size: 1.32rem; font-weight: 600; margin: 0 0 0.4rem; line-height: 1.16; }
+  .part-card p { font-size: 0.88rem; color: var(--ink-muted); margin: 0 0 1.1rem; line-height: 1.5; }
+  .part-card .part-go { margin-top: auto; font-size: 0.78rem; font-weight: 600; color: var(--accent-deep); display: flex; align-items: center; gap: 0.35rem; }
+  .part-card .part-go .arrow { transition: transform 0.2s ease; }
+  .part-card:hover .part-go .arrow { transform: translateX(4px); }
+  .part-card .ext { font-size: 0.7rem; font-weight: 600; color: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.45rem; }
+  .hub-hint { margin-top: 2rem; font-size: 0.85rem; color: var(--ink-faint); }
 
   /* ---------- Project slide: fold + deep dive ---------- */
   .slide-inner { max-width: 1160px; margin: 0 auto; width: 100%; padding: clamp(1.5rem, 5vw, 5rem); }
@@ -497,6 +523,7 @@ function projectSlideHTML(p) {
 }
 
 const slides = [
+  { type: "hub" },
   { type: "title" },
   ...PROJECTS.map(p => ({ type: "project", data: p })),
   { type: "closing" }
@@ -506,7 +533,38 @@ const track = document.getElementById('track');
 slides.forEach((s, i) => {
   const el = document.createElement('div');
   el.className = 'slide';
-  if (s.type === 'title') {
+  if (s.type === 'hub') {
+    el.classList.add('centered', 'hub-slide');
+    el.innerHTML = `
+      <div>
+        <div class="eyebrow fade-in">Mantel Group &middot; Technical interview</div>
+        <h1 class="fade-in" style="animation-delay:.08s">Tarun Bonu</h1>
+        <p class="sub fade-in" style="animation-delay:.16s">Three parts to the hour. Start wherever you'd like.</p>
+        <div class="hub-row fade-in" style="animation-delay:.24s">
+          <a class="part-card" href="kohonen_code_review.html" target="_blank" rel="noopener">
+            <span class="part-num">PART 01</span>
+            <h3>Code review</h3>
+            <p>A Kohonen self-organising map: observations, my top five recommendations, and the before and after of each.</p>
+            <span class="part-go">Open the review <span class="arrow">&rarr;</span></span>
+            <span class="ext">Opens in a new tab</span>
+          </a>
+          <button class="part-card" data-goto="title">
+            <span class="part-num">PART 02</span>
+            <h3>Project experience</h3>
+            <p>Five projects, three delivered at work and two built on my own. Each one opens on the decision that mattered.</p>
+            <span class="part-go">Start the walkthrough <span class="arrow">&rarr;</span></span>
+          </button>
+          <button class="part-card" data-goto="closing">
+            <span class="part-num">PART 03</span>
+            <h3>Questions</h3>
+            <p>Yours about any of the above, and mine about the team, the work, and what the first few months look like.</p>
+            <span class="part-go">Jump to the close <span class="arrow">&rarr;</span></span>
+          </button>
+        </div>
+        <div class="hub-hint fade-in" style="animation-delay:.32s">or use the arrow keys to move through everything in order</div>
+      </div>
+    `;
+  } else if (s.type === 'title') {
     el.classList.add('centered', 'title-slide');
     el.innerHTML = `
       <div>
@@ -591,6 +649,12 @@ function goTo(i) {
 prevBtn.addEventListener('click', () => goTo(current - 1));
 nextBtn.addEventListener('click', () => goTo(current + 1));
 homeBtn.addEventListener('click', () => goTo(0));
+document.querySelectorAll('[data-goto]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const index = slides.findIndex(s => s.type === btn.dataset.goto);
+    if (index !== -1) goTo(index);
+  });
+});
 document.querySelectorAll('[data-jump]').forEach(btn => {
   btn.addEventListener('click', () => {
     const group = btn.dataset.jump;

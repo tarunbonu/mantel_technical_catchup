@@ -11,8 +11,9 @@ extend without reverse-engineering it.
 | File | Purpose |
 |------|---------|
 | `kohonen_som.py` | Core SOM training logic and an example entry point |
-| `utils.py` | Shared helpers (data loading, plotting, seeding) |
-| `config.yaml` | Run configuration: grid size, iteration count, learning rate, output paths |
+| `utils.py` | Shared helpers: config loading, data generation, SOM maths, saving output |
+| `validations.py` | Input and output validation, raised as clear errors before training starts |
+| `config.yaml` | Configuration: learning rate, dimensions, output directory, logging |
 | `requirements.txt` | Pinned dependencies |
 | `README.md` | This file |
 

@@ -56,4 +56,8 @@ Now focussing on improving efficiency of training iterations:
 ---
 Performed one change- removal of loops
 Instead of updating nodes one at a time, 
-I now update it through a vector operation 
+I now update it through a vector operation
+
+Just this one change boosted performance:
+   100 iterations - 0.03s
+   1000 iterations - 4.76s

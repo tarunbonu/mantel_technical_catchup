@@ -1,0 +1,21 @@
+# Configuration for the Kohonen SOM.
+# Values here were previously hard-coded in kohonen_som.py.
+
+# Algorithm constants.
+som:
+  # Initial learning rate (alpha_0). Decays exponentially over training.
+  initial_learning_rate: 0.1
+  # Dimensionality of each input vector and of each node's weight vector.
+  # 3 for RGB colour data.
+  n_dimensions: 3
+
+# Directory that trained map images are written to, relative to this file.
+output:
+  directory: results
+
+# Logging behaviour.
+logging:
+  # One of DEBUG, INFO, WARNING, ERROR.
+  level: INFO
+  # Log training progress every N iterations.
+  log_every: 200
