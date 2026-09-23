@@ -105,7 +105,7 @@ Grid size and iteration count are still passed as arguments at the call site in
   input dimensionality should never require editing Python.
 - **Vectorised numerics.** Node updates are computed with NumPy array operations rather
   than per-node Python loops, so large grids remain tractable. On a 100x100 grid over 1000
-  iterations this is the difference between 5m 54s and roughly 4.8s.
+  iterations this is the difference between 6m 54s and roughly 4.8s.
 - **Small, single-purpose functions** with docstrings, so each step (BMU lookup,
   neighbourhood, weight update) can be tested and reasoned about on its own.
 - **Validate at the boundaries.** Arguments are checked before training starts and the

@@ -24,6 +24,7 @@ These need to be coming from a python package? math?
 6. No test cases
 7. No guardrails or checks involved.
 8. Need docker.venv for packages
+9. Many nested loops
 
 ------
 Implemented the following in the same order:
@@ -32,7 +33,7 @@ Implemented the following in the same order:
 2. Requirements.txt - virtual environment - gitignore
 3. Performance analysis - benchmarking
    100 iterations - 0.47s
-   1000 iterations - 5m 54s
+   1000 iterations - 6m 54s
 
 4. Better variables and better notations for mathematical equations
 5. Constants added to a config

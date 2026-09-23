@@ -154,7 +154,7 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-
       <h3>Could the code be made more efficient?</h3>
       <span class="verdict yes">YES</span>
     </div>
-    <p>Removing the nested loops took the large run from 5m 54s to 4.76s. Detail below.</p>
+    <p>Removing the nested loops took the large run from 6m 54s to 4.76s. Detail below.</p>
   </div>
 
   <div class="q">
@@ -186,13 +186,14 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-
     <li>No test cases</li>
     <li>No guardrails or checks involved</li>
     <li>Need Docker and a virtual environment for packages</li>
+    <li>Many nested loops</li>
   </ol>
 
   <h2>Implemented, in this order</h2>
   <ol class="plain">
     <li>Good formatting in terms of a repo structure, adding a README</li>
     <li>Requirements.txt, virtual environment, gitignore</li>
-    <li>Performance analysis, benchmarking <span>(100 iterations 0.47s, 1000 iterations 5m 54s)</span></li>
+    <li>Performance analysis, benchmarking <span>(100 iterations 0.47s, 1000 iterations 6m 54s)</span></li>
     <li>Better variables and better notations for mathematical equations</li>
     <li>Constants added to a config</li>
     <li>Addition of modularity, to use the training method as a function call</li>
@@ -205,7 +206,7 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-
   <p>Three things I considered:</p>
   <ol class="plain">
     <li>Some nested loop structure could be avoided</li>
-    <li>Multi-threading for node-level calculations <span>(rejected, the GIL blocks any gain on pure Python arithmetic)</span></li>
+    <li>Multi-threading for node-level calculations <span>(complex, and realised it was unnecessary in this scenario)</span></li>
     <li>Using matrix operations to optimise</li>
   </ol>
 
@@ -247,7 +248,7 @@ weights += (
     </div>
     <div>
       <div class="run">1000 iterations, 100 &times; 100 grid</div>
-      <div class="t"><span class="old">5m 54s</span><span class="arrow">&rarr;</span><span class="new">4.76s</span></div>
+      <div class="t"><span class="old">6m 54s</span><span class="arrow">&rarr;</span><span class="new">4.76s</span></div>
     </div>
   </div>
 
